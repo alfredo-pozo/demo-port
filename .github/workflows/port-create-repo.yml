@@ -15,15 +15,39 @@ jobs:
       ORG_NAME: alfredo-pozo
     runs-on: ubuntu-latest
     steps:
-      - uses: port-labs/cookiecutter-gha@v1.1.1
-        id: scaff
-        with:
-          portClientId: ${{ secrets.PORT_CLIENT_ID }}
-          portClientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          token: ${{ secrets.ORG_ADMIN_TOKEN }}
-          portRunId: ${{ fromJson(inputs.port_context).runId }}
-          repositoryName: ${{ inputs.service_name }}
-          portUserInputs: '{"cookiecutter_app_name": "${{ inputs.service_name }}" }'
-          cookiecutterTemplate: https://github.com/alfredo-pozo/containerapps-csharp
-          blueprintIdentifier: "service"
-          organizationName: ${{ env.ORG_NAME }}
+      - run: |
+
+          send_log() {
+            message=$1
+            curl --location "https://api.getport.io/v1/actions/runs/${{ fromJson(inputs.port_context).runId }}/logs" \
+              --header "Authorization: Bearer $access_token" \
+              --header "Content-Type: application/json" \
+              --data "{
+                \"message\": \"$message\"
+              }"
+          }
+          
+          curl -s --location --request POST 'https://api.getport.io/v1/auth/access_token' --header 'Content-Type: application/json' --data-raw "{
+          \"clientId\": \"${{ secrets.PORT_CLIENT_ID }}\",
+          \"clientSecret\": \"${{ secrets.PORT_CLIENT_SECRET }}\"
+          }" | jq -r '.accessToken'
+
+          send_log "Creating a new repository: ${{ inputs.service_name }}"
+
+          gh repo create ${{ inputs.service_name }} --public --template https://github.com/alfredo-pozo/containerapps-csharp
+
+          send_log "Reporting to Port the new entity created"
+
+           curl --location "https://api.getport.io/v1/blueprints/service/entities?run_id=${{ fromJson(inputs.port_context).runId }}" \
+          --header "Authorization: Bearer $access_token" \
+          --header "Content-Type: application/json" \
+          --data "{
+            \"identifier\": \"${{ inputs.service_name }}\",
+            \"title\": \"${{ inputs.service_name }}\",
+            \"properties\": {}
+          }"
+
+          end_log "Finished!"        
+          
+        env:
+          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
