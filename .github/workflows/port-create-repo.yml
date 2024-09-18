@@ -50,5 +50,5 @@ jobs:
         with:
           # Specify the script here
           inlineScript: |
-            az containerapp up -n ${{ inputs.service_name }}-app --repo https://github.com/alfredo-pozo/${{ inputs.service_name }} --location "East US" --environment env-${{ inputs.service_name }}-app --resource-group rg-${{ inputs.service_name }}-app  --ingress external --token ${{ secrets.ORG_ADMIN_TOKEN }}  --context-path "./src" --sp-cid ${{ secrets. AZURE_CLIENT_ID }} --sp-sec ${{ secrets.AZURE_CLIENT_SECRET }} --sp-tid ${{ secrets.AZURE_TENANT_ID }}
+            az containerapp up -n ${{ inputs.service_name }}-app --repo https://github.com/alfredo-pozo/${{ inputs.service_name }} --location "East US" --environment env-${{ inputs.service_name }}-app --resource-group rg-${{ inputs.service_name }}-app  --ingress external --token ${{ secrets.ORG_ADMIN_TOKEN }}  --context-path ./src --sp-cid ${{ secrets. AZURE_CLIENT_ID }} --sp-sec ${{ secrets.AZURE_CLIENT_SECRET }} --sp-tid ${{ secrets.AZURE_TENANT_ID }}
           
