@@ -22,9 +22,38 @@ jobs:
           \"clientSecret\": \"${{ secrets.PORT_CLIENT_SECRET }}\"
           }" | jq -r '.accessToken'
 
-
           gh repo create ${{ inputs.service_name }} --public --template https://github.com/alfredo-pozo/containerapps-csharp
 
+          curl --location "https://sonarcloud.io/web_api/api/projects/create?deprecated=false" \
+          --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
+          --header "Content-Type: application/json" \
+          --data "{
+            \"name\": \"${{ inputs.service_name }}\",
+            \"newCodeDefinitionType\": \"days\",
+            \"newCodeDefinitionValue\": \"2\",
+            \"organization\": \"demo-${{ env.ORG_NAME }}\",
+            \"project\": \"${{ inputs.service_name }}\"
+          }"
+
+          curl --location "https://sonarcloud.io/web_api/api/settings/set?deprecated=false&section=params" \
+          --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
+          --header "Content-Type: application/json" \
+          --data "{
+            \"component\": \"${{ inputs.service_name }}\",
+            \"key\": \"sonar.links.scm\",
+            \"value\": \"https://github.com/${{ env.ORG_NAME }}/${{ inputs.service_name }}\",
+            \"organization\": \"demo-${{ env.ORG_NAME }}\"
+          }"
+
+          curl --location "https://sonarcloud.io/web_api/api/settings/set?deprecated=false&section=params" \
+          --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
+          --header "Content-Type: application/json" \
+          --data "{
+            \"component\": \"${{ inputs.service_name }}\",
+            \"key\": \"sonar.branch.name\",
+            \"value\": \"main\",
+            \"organization\": \"demo-${{ env.ORG_NAME }}\"
+          }"
 
            curl --location "https://api.getport.io/v1/blueprints/service/entities?run_id=${{ fromJson(inputs.port_context).runId }}" \
           --header "Authorization: Bearer $access_token" \
@@ -32,9 +61,11 @@ jobs:
           --data "{
             \"identifier\": \"${{ inputs.service_name }}\",
             \"title\": \"${{ inputs.service_name }}\",
-            \"properties\": {}
+            \"properties\": {},
+            \"relations\": {
+              \"sonarqube_project\": \"${{ inputs.service_name }}\"
+             }
           }"
-
           
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
