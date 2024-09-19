@@ -24,7 +24,7 @@ jobs:
 
           gh repo create ${{ inputs.service_name }} --public --template https://github.com/alfredo-pozo/containerapps-csharp
 
-          curl --location "https://sonarcloud.io/web_api/api/projects/create?deprecated=false" \
+          curl --location --request POST "https://sonarcloud.io/api/projects/create?deprecated=false" \
           --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
           --header "Content-Type: application/json" \
           --data "{
@@ -35,7 +35,7 @@ jobs:
             \"project\": \"${{ inputs.service_name }}\"
           }"
 
-          curl --location "https://sonarcloud.io/web_api/api/settings/set?deprecated=false&section=params" \
+          curl --location --request POST "https://sonarcloud.io/api/settings/set?deprecated=false&section=params" \
           --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
           --header "Content-Type: application/json" \
           --data "{
@@ -45,7 +45,7 @@ jobs:
             \"organization\": \"demo-${{ env.ORG_NAME }}\"
           }"
 
-          curl --location "https://sonarcloud.io/web_api/api/settings/set?deprecated=false&section=params" \
+          curl --location --request POST "https://sonarcloud.io/api/settings/set?deprecated=false&section=params" \
           --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
           --header "Content-Type: application/json" \
           --data "{
