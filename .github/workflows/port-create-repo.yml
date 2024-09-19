@@ -17,9 +17,7 @@ jobs:
     steps:
       - run: |
           
-          gh repo create ${{ inputs.service_name }} --public --template https://github.com/alfredo-pozo/containerapps-csharp
-
-          curl --location --request POST "https://sonarcloud.io/api/projects/create" \
+          curl --location --request POST "https://sonarcloud.io/api/projects/create?organization=demo-${{ env.ORG_NAME }}" \
           --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
           --header "Content-Type: application/json" \
           --data "{
