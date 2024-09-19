@@ -21,7 +21,7 @@ jobs:
           --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
           --header "Content-Type: application/json"
 
-          curl --location --request POST "https://sonarcloud.io/api/settings/set?section=params&component=${{ inputs.service_name }}&organization=demo-${{ env.ORG_NAME }}&key=sonar.links.scm&value=https://github.com/${{ env.ORG_NAME }}/${{ inputs.service_name }}" \
+          curl --location --request POST "https://sonarcloud.io/api/settings/set?section=params&component=${{ inputs.service_name }}&key=sonar.links.scm&value=https://github.com/${{ env.ORG_NAME }}/${{ inputs.service_name }}" \
           --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
           --header "Content-Type: application/json" 
           
