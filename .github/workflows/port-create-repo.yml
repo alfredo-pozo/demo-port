@@ -23,18 +23,6 @@ jobs:
           }" | jq -r '.accessToken'
 
           gh repo create ${{ inputs.service_name }} --public --template https://github.com/alfredo-pozo/containerapps-csharp
-          
-          curl --location --request POST "https://sonarcloud.io/api/projects/create?organization=demo-${{ env.ORG_NAME }}&project=${{ inputs.service_name }}&name=${{ inputs.service_name }}&newCodeDefinitionType=days&newCodeDefinitionValue=2" \
-          --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
-          --header "Content-Type: application/json"
-
-          curl --location --request POST "https://sonarcloud.io/api/settings/set?section=params&component=${{ inputs.service_name }}&key=sonar.links.scm&value=https://github.com/${{ env.ORG_NAME }}/${{ inputs.service_name }}" \
-          --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
-          --header "Content-Type: application/json" 
-
-          curl --location --request POST "https://sonarcloud.io/api/settings/set?section=params&component=${{ inputs.service_name }}&key=sonar.branch.name&value=main" \
-          --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
-          --header "Content-Type: application/json"
 
           curl --location "https://api.getport.io/v1/blueprints/service/entities?run_id=${{ fromJson(inputs.port_context).runId }}" \
           --header "Authorization: Bearer $access_token" \
@@ -42,10 +30,7 @@ jobs:
           --data "{
             \"identifier\": \"${{ inputs.service_name }}\",
             \"title\": \"${{ inputs.service_name }}\",
-            \"properties\": {},
-            \"relations\": {
-              \"sonarqube_project\": \"${{ inputs.service_name }}\"
-             }
+            \"properties\": {}
           }"
           
         env:
