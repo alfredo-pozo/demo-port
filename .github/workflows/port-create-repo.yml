@@ -17,14 +17,9 @@ jobs:
     steps:
       - run: |
           
-          curl -s --location --request POST 'https://api.getport.io/v1/auth/access_token' --header 'Content-Type: application/json' --data-raw "{
-          \"clientId\": \"${{ secrets.PORT_CLIENT_ID }}\",
-          \"clientSecret\": \"${{ secrets.PORT_CLIENT_SECRET }}\"
-          }" | jq -r '.accessToken'
-
           gh repo create ${{ inputs.service_name }} --public --template https://github.com/alfredo-pozo/containerapps-csharp
 
-          curl --location --request POST "https://sonarcloud.io/api/projects/create?deprecated=false" \
+          curl --location --request POST "https://sonarcloud.io/api/projects/create" \
           --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
           --header "Content-Type: application/json" \
           --data "{
@@ -33,53 +28,21 @@ jobs:
             \"newCodeDefinitionValue\": \"2\",
             \"organization\": \"demo-${{ env.ORG_NAME }}\",
             \"project\": \"${{ inputs.service_name }}\"
-          }"
-
-          curl --location --request POST "https://sonarcloud.io/api/settings/set?deprecated=false&section=params" \
-          --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
-          --header "Content-Type: application/json" \
-          --data "{
-            \"component\": \"${{ inputs.service_name }}\",
-            \"key\": \"sonar.links.scm\",
-            \"value\": \"https://github.com/${{ env.ORG_NAME }}/${{ inputs.service_name }}\",
-            \"organization\": \"demo-${{ env.ORG_NAME }}\"
-          }"
-
-          curl --location --request POST "https://sonarcloud.io/api/settings/set?deprecated=false&section=params" \
-          --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
-          --header "Content-Type: application/json" \
-          --data "{
-            \"component\": \"${{ inputs.service_name }}\",
-            \"key\": \"sonar.branch.name\",
-            \"value\": \"main\",
-            \"organization\": \"demo-${{ env.ORG_NAME }}\"
-          }"
-
-           curl --location "https://api.getport.io/v1/blueprints/service/entities?run_id=${{ fromJson(inputs.port_context).runId }}" \
-          --header "Authorization: Bearer $access_token" \
-          --header "Content-Type: application/json" \
-          --data "{
-            \"identifier\": \"${{ inputs.service_name }}\",
-            \"title\": \"${{ inputs.service_name }}\",
-            \"properties\": {},
-            \"relations\": {
-              \"sonarqube_project\": \"${{ inputs.service_name }}\"
-             }
-          }"
+          }"          
           
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
 
-      - name: Azure Login
-        uses: Azure/login@v2.1.0
-        with:
+      #- name: Azure Login
+      #  uses: Azure/login@v2.1.0
+      #  with:
           # ClientId of the Azure Service principal created.
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      #    creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Azure CLI Action
-        uses: Azure/cli@v2.1.0
-        with:
+      #- name: Azure CLI Action
+      #  uses: Azure/cli@v2.1.0
+      #  with:
           # Specify the script here
-          inlineScript: |
-            az containerapp up -n ${{ inputs.service_name }}-app --repo https://github.com/alfredo-pozo/${{ inputs.service_name }} --location "East US" --environment env-${{ inputs.service_name }}-app --resource-group rg-${{ inputs.service_name }}-app  --ingress external --token ${{ secrets.ORG_ADMIN_TOKEN }}  --context-path ./src --sp-cid ${{ secrets. AZURE_CLIENT_ID }} --sp-sec ${{ secrets.AZURE_CLIENT_SECRET }} --sp-tid ${{ secrets.AZURE_TENANT_ID }}
+      #    inlineScript: |
+      #      az containerapp up -n ${{ inputs.service_name }}-app --repo https://github.com/alfredo-pozo/${{ inputs.service_name }} --location "East US" --environment env-${{ inputs.service_name }}-app --resource-group rg-${{ inputs.service_name }}-app  --ingress external --token ${{ secrets.ORG_ADMIN_TOKEN }}  --context-path ./src --sp-cid ${{ secrets. AZURE_CLIENT_ID }} --sp-sec ${{ secrets.AZURE_CLIENT_SECRET }} --sp-tid ${{ secrets.AZURE_TENANT_ID }}
           
