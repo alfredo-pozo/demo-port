@@ -17,13 +17,13 @@ jobs:
     steps:
       - run: |
           
-          curl --location --request POST "https://sonarcloud.io/api/projects/create?organization=demo-${{ env.ORG_NAME }}&project=${{ inputs.service_name }}&name=${{ inputs.service_name }}" \
+          curl --location --request POST "https://sonarcloud.io/api/projects/create?organization=demo-${{ env.ORG_NAME }}&project=${{ inputs.service_name }}&name=${{ inputs.service_name }}&newCodeDefinitionType=days&newCodeDefinitionValue=2" \
           --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
-          --header "Content-Type: application/json" \
-          --data "{
-            \"newCodeDefinitionType\": \"days\",
-            \"newCodeDefinitionValue\": \"2\"
-          }"          
+          --header "Content-Type: application/json"
+
+          curl --location --request POST "https://sonarcloud.io/api/settings/set?section=params&component=${{ inputs.service_name }}&organization=demo-${{ env.ORG_NAME }}&key=sonar.links.scm&value=https://github.com/${{ env.ORG_NAME }}/${{ inputs.service_name }}" \
+          --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
+          --header "Content-Type: application/json" 
           
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
